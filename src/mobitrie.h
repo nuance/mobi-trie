@@ -8,7 +8,7 @@ typedef uint64_t offset;
 
 typedef struct {
   int key_size;
-  char *key;
+  const char *key;
 
   offset off;
 } KeyOffset;
@@ -31,10 +31,10 @@ void mt_free(MTrie *mt);
 
 void mt_set_key(MTrie *mt, KeyOffset data);
 
-bool mt_contains_key(MTrie *mt, char *key);
-int mt_count_prefix(MTrie *mt, char *prefix);
+bool mt_contains_key(MTrie *mt, const char *key);
+int mt_count_prefix(MTrie *mt, const char *prefix);
 
-MTrieIter* mt_iter_start(MTrie *mt, char *prefix);
+MTrieIter* mt_iter_start(MTrie *mt, const char *prefix);
 KeyOffset* mt_iter_next(MTrieIter *iter);
 void mt_iter_free(MTrieIter *iter);
 

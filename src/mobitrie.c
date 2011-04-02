@@ -47,17 +47,17 @@ void mt_set_key(MTrie *mt, KeyOffset data) {
   mt_insert(match, data);
 }
 
-bool mt_contains_key(MTrie *mt, char *key) {
+bool mt_contains_key(MTrie *mt, const char *key) {
   Match match = mt_find(mt, key);
 
   return (match.mt != NULL);
 }
 
-int mt_count_prefix(MTrie *mt, char *prefix) {
-  
+
+int mt_count_prefix(MTrie *mt, const char *prefix) {
 }
 
-MTrieIter* mt_iter_start(MTrie *mt, char *prefix) {
+MTrieIter* mt_iter_start(MTrie *mt, const char *prefix) {
 
 }
 
