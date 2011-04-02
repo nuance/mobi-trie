@@ -9,11 +9,11 @@ typedef uint64_t offset;
 
 typedef struct {
   wchar_t key;
-  offset *off;
+  offset off;
 } KeyOffset;
 
 typedef struct _MTrie {
-  KeyOffset data;
+  KeyOffset *data;
 
   int num_children;
   struct _MTrie **children;
@@ -22,6 +22,12 @@ typedef struct _MTrie {
 typedef struct {
   
 } MTrieIter;
+
+typedef struct {
+  wchar_t *prefix;
+
+  MTrie *mt;
+} MTrieMatch;
 
 // Create a new trie. Returns NULL on failure
 MTrie *mt_new();
@@ -37,7 +43,7 @@ int mt_count_prefix(MTrie *mt, const wchar_t *key);
 
 MTrieIter* mt_iter_start(MTrie *mt, const wchar_t *prefix);
 
-KeyOffset* mt_iter_next(MTrieIter *iter);
+MTrieMatch* mt_iter_next(MTrieIter *iter);
 void mt_iter_free(MTrieIter *iter);
 
 #endif /* _MOBITRIE_H_ */

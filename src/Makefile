@@ -1,7 +1,7 @@
 CC=llvm-gcc -std=c99
 CFLAGS=-Wall
 
-all: mt
+all: test
 
 test: mobitrie.o mobitrie_test.o
 	$(CC) -o test mobitrie.o mobitrie_test.o
