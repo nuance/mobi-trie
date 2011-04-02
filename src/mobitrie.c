@@ -122,7 +122,6 @@ MTrieMatch mt_find_parent(MTrie *mt, const wchar_t *key) {
 
 	// If none of the children matched, this is our parent.
 	if (!next_node) {
-	  // FIXME: This is leaked
 	  wchar_t *prefix = (wchar_t*)malloc(sizeof(wchar_t) * key_position);
 	  wcsncpy(prefix, key, key_position);
 
