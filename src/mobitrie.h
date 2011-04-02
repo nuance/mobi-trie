@@ -10,6 +10,9 @@ typedef struct { } MTrie;
 typedef struct { } MTrieIter;
 typedef struct { } KeyOffset;
 
+MTrie *mt_new();
+MTrie *mt_free();
+
 void mt_set_key(MTrie *mt, char *key, offset val);
 
 bool mt_contains_key(MTrie *mt, char *key);
