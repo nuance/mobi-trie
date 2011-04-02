@@ -64,16 +64,13 @@ void mt_resize_children(MTrie *mt) {
 
 // Insert a node somewhere under an existing node
 void mt_insert(MTrieMatch prefix, const wchar_t *key, offset data) {
-  int prefix_len = 0;
+  int prefix_len = prefix.prefix ? wcslen(prefix.prefix) : 0;
   int key_len = wcslen(key);
-
-  if (prefix.prefix) {
-	wcslen(prefix.prefix);
-  }
 
   MTrie *current_parent = prefix.mt;
   // Now we'll have to create any nodes between parent and our end
   for (int char_pos = prefix_len; char_pos < key_len; char_pos++) {
+	printf("Creating node for %ls pos %d\n", key, char_pos);
 	// check if we need to re-size parent's children
 	if (current_parent->num_children + 1 >= current_parent->cap_children) {
 	  mt_resize_children(current_parent);
@@ -90,6 +87,7 @@ void mt_insert(MTrieMatch prefix, const wchar_t *key, offset data) {
 
 	current_parent = node;
   }
+  printf("Finished node\n");
 
   // The last parent is the final character, which should be valid
   current_parent->data->valid = true;
@@ -145,7 +143,7 @@ MTrie *mt_find(MTrie *mt, const wchar_t *key) {
   for (int child_pos = 0; child_pos < p.mt->num_children; child_pos++) {
 	MTrie *child = p.mt->children[child_pos];
 
-	if (child->data->key == key[prefix_len+1]) {
+	if (child->data->key == key[prefix_len]) {
 	  node = child;
 	  goto CLEANUP;
 	}
@@ -163,8 +161,9 @@ MTrieMatch mt_find_parent(MTrie *mt, const wchar_t *key) {
   int key_len = wcslen(key);
   MTrie *node = mt;
 
-  for (int key_position = 0; key_position < key_len; key_position++) {
+  for (int key_position = 0; key_position < key_len - 1; key_position++) {
 	MTrie *next_node = NULL;
+	printf("Checking position %d\n", key_position);
 
 	// Walk through the children, looking for a match
 	for (int child_pos = 0; child_pos < node->num_children; child_pos++) {
@@ -172,6 +171,7 @@ MTrieMatch mt_find_parent(MTrie *mt, const wchar_t *key) {
 
 	  // If the child matches our position, break out.
 	  if (child->data->key == key[key_position]) {
+		printf("Found match at child %d\n", child_pos);
 		next_node = child;
 		break;
 	  }
@@ -179,11 +179,14 @@ MTrieMatch mt_find_parent(MTrie *mt, const wchar_t *key) {
 
 	// If none of the children matched, this is our parent.
 	if (!next_node) {
+	  printf("No child match\n");
 	  if (key_position) {
 		wchar_t *prefix = (wchar_t*)malloc(sizeof(wchar_t) * key_position);
 		wcsncpy(prefix, key, key_position);
+		printf("Returning match\n");
 		return (MTrieMatch) {prefix, node};
 	  } else {
+		printf("No prefix match\n");
 		return (MTrieMatch) {NULL, node};
 	  }
 	}
@@ -192,6 +195,9 @@ MTrieMatch mt_find_parent(MTrie *mt, const wchar_t *key) {
 	node = next_node;
   }
 
-  return (MTrieMatch) {NULL, mt};
+  wchar_t *prefix = (wchar_t*)malloc(sizeof(wchar_t) * (key_len - 1));
+  wcsncpy(prefix, key, key_len - 1);
+  printf("Returning match\n");
+  return (MTrieMatch) {prefix, node};
 }
 
