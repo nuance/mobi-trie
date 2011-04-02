@@ -42,11 +42,11 @@ char * test_put() {
 		mt_contains_key(trie, KEY)
   );
   mu_assert(
-    "After put, count is 1",
+    "After put, count should be 1",
 		mt_count_prefix(trie, KEY) == 1
   );
 	mu_assert(
-	  "After put, prefix count is 1",
+	  "After put, count prefix should be is 1",
 		mt_count_prefix(trie, PREFIX) == 1
 	);
   

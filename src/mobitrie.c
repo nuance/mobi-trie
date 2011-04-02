@@ -5,6 +5,7 @@
 
 // Minimum size of children
 int MTRIE_BASE_CAP = 4;
+int MAX_KEY_SIZE = 100;
 
 MTrie *mt_new() {
   MTrie *mt = (MTrie*) malloc(sizeof(MTrie));
@@ -101,18 +102,84 @@ bool mt_contains_key(MTrie *mt, const wchar_t *key) {
 }
 
 int mt_count_prefix(MTrie *mt, const wchar_t *prefix) {
-  #warning mt_count_prefix
-  return 0;
+  MTrieIter *iter = mt_iter_start(mt, prefix);
+  int count = 0;
+  MTrieMatch *m = NULL;
+
+  while ((m = mt_iter_next(iter))) {
+	count += 1;
+  }
+
+  // FIXME: Leaking m
+
+  return count;
 }
 
 MTrieIter* mt_iter_start(MTrie *mt, const wchar_t *prefix) {
-  #warning mt_iter_start
-  return NULL;
+  MTrieIter *iter = (MTrieIter*) malloc(sizeof(MTrieIter));
+
+  iter->node = mt;
+
+  iter->path = (int*)malloc(sizeof(int) * MAX_KEY_SIZE);
+  iter->path[0] = 0;
+  iter->depth = 1;
+
+  return iter;
 }
 
 MTrieMatch *mt_iter_next(MTrieIter *iter) {
-  #warning mt_iter_next
-  return NULL;
+  MTrie *next = NULL;
+  wchar_t *prefix = (wchar_t*)malloc(sizeof(wchar_t) * iter->depth);
+
+  printf("starting mt_iter_next\n");
+
+  while (! next) {
+	printf("Iterator @ depth %d\n", iter->depth);
+	MTrie *current = iter->node;
+
+	// Walk down to the 2nd to last node. We know this path is safe, so we're really just building up the history.
+	for (int d = 0; d < iter->depth - 1; d++) {
+	  int child_pos = iter->path[d];
+	  current = current->children[child_pos];
+
+	  prefix[d] = current->data->key;
+	}
+
+	// The last step. This might be invalid.
+	if (iter->path[iter->depth-1] >= current->num_children) {
+	  // We've run out of children to look at. So drop depth & increment child (only happens on the lowest depth).
+	  iter->depth -= 1;
+
+	  if (! iter->depth) {
+		// at the root, so we're done
+		return NULL;
+	  }
+
+	  // move the parent forward
+	  iter->path[iter->depth-1] += 1;
+	  printf("Stepping to child %d @ depth %d\n", iter->path[iter->depth-1], iter->depth);
+	} else {
+	  // The last step is still valid
+	  current = current->children[iter->path[iter->depth-1]];
+	  prefix[iter->depth-1] = current->data->key;
+
+	  // Point it to our first potential child
+	  iter->depth += 1;
+	  iter->path[iter->depth-1] = 0;
+	  printf("Stepping to child %d @ depth %d\n", iter->path[iter->depth-1], iter->depth);
+
+	  if (current->data && current->data->valid) {
+		next = current;
+	  }
+	}
+  }
+
+  MTrieMatch *ret = (MTrieMatch*)malloc(sizeof(MTrieMatch));
+
+  ret->prefix = prefix;
+  ret->mt = next;
+
+  return ret;
 }
 
 void mt_iter_free(MTrieIter *iter) {

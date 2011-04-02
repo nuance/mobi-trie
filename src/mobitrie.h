@@ -21,7 +21,13 @@ typedef struct _MTrie {
 } MTrie;
 
 typedef struct {
-  
+  // the root node
+  MTrie *node;
+
+  // The path through the children arrays to our current prefix
+  int *path;
+  // How deep are we?
+  int depth;
 } MTrieIter;
 
 typedef struct {
