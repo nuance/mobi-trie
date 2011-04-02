@@ -10,12 +10,13 @@ typedef uint64_t offset;
 typedef struct {
   wchar_t key;
   offset off;
+  bool valid;
 } KeyOffset;
 
 typedef struct _MTrie {
   KeyOffset *data;
 
-  int num_children;
+  int num_children, cap_children;
   struct _MTrie **children;
 } MTrie;
 
@@ -36,7 +37,6 @@ MTrie *mt_new();
 void mt_free(MTrie *mt);
 
 void mt_set_key(MTrie *mt, const wchar_t *key, offset data);
-void mt_set_key_offset(MTrie *mt, KeyOffset data);
 
 bool mt_contains_key(MTrie *mt, const wchar_t *key);
 int mt_count_prefix(MTrie *mt, const wchar_t *key);
