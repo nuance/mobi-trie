@@ -3,6 +3,9 @@
 #include "mobitrie.h"
 #include "mobitrie_priv.h"
 
+// Minimum size of children
+int MTRIE_BASE_CAP = 4;
+
 MTrie *mt_new() {
   MTrie *mt = (MTrie*) malloc(sizeof(MTrie));
 
@@ -12,6 +15,7 @@ MTrie *mt_new() {
 
   mt->data = NULL;
   mt->num_children = 0;
+  mt->cap_children = 0;
   mt->children = NULL;
 
   return mt;
@@ -46,26 +50,71 @@ void mt_set_key(MTrie *mt, const wchar_t *key, offset data) {
   mt_insert(match, key, data);
 }
 
+// alloc / increase child capacity
+void mt_resize_children(MTrie *mt) {
+  if (!mt->children) {
+	mt->cap_children = MTRIE_BASE_CAP;
+	mt->children = (MTrie**) malloc(sizeof(MTrie*) * MTRIE_BASE_CAP);
+  } else {
+	// double the size of children
+	mt->cap_children *= 2;
+	mt->children = (MTrie**) reallocf(mt->children, sizeof(MTrie*) * mt->cap_children);
+  }
+}
+
+// Insert a node somewhere under an existing node
+void mt_insert(MTrieMatch prefix, const wchar_t *key, offset data) {
+  int prefix_len = wcslen(prefix.prefix);
+  int key_len = wcslen(key);
+
+  MTrie *current_parent = prefix.mt;
+  // Now we'll have to create any nodes between parent and our end
+  for (int char_pos = prefix_len; char_pos < key_len; char_pos++) {
+	// check if we need to re-size parent's children
+	if (current_parent->num_children + 1 >= current_parent->cap_children) {
+	  mt_resize_children(current_parent);
+	}
+
+	MTrie *node = mt_new();
+	node->data = (KeyOffset*)malloc(sizeof(KeyOffset));
+
+	node->data->valid = false;
+	node->data->key = key[char_pos];
+
+	current_parent->children[current_parent->num_children] = node;
+	current_parent->num_children++;
+
+	current_parent = node;
+  }
+
+  // The last parent is the final character, which should be valid
+  current_parent->data->valid = true;
+  current_parent->data->off = data;
+}
+
 bool mt_contains_key(MTrie *mt, const wchar_t *key) {
   MTrie *node = mt_find(mt, key);
 
-  return (node != NULL);
+  return (node != NULL && node->data != NULL && node->data->valid);
 }
 
 int mt_count_prefix(MTrie *mt, const wchar_t *prefix) {
+  #warning mt_count_prefix
   return 0;
 }
 
 MTrieIter* mt_iter_start(MTrie *mt, const wchar_t *prefix) {
+  #warning mt_iter_start
   return NULL;
 }
 
 MTrieMatch *mt_iter_next(MTrieIter *iter) {
+  #warning mt_iter_next
   return NULL;
 }
 
 void mt_iter_free(MTrieIter *iter) {
-  
+  #warning mt_iter_free
 }
 
 // Internal helpers
@@ -133,10 +182,5 @@ MTrieMatch mt_find_parent(MTrie *mt, const wchar_t *key) {
   }
 
   return (MTrieMatch) {NULL, mt};
-}
-
-// Insert a node, assuming a parent was found using one of the previous functions
-void mt_insert(MTrieMatch prefix, const wchar_t *key, offset data) {
-  
 }
 
