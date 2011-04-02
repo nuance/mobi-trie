@@ -19,7 +19,7 @@ MTrie *mt_new() {
 
 void mt_free(MTrie *mt) {
   if (mt->data) {
-	free(mt->data->key);
+	free(mt->data->suffix);
 	free(mt->data);
   }
 
@@ -34,7 +34,7 @@ void mt_free(MTrie *mt) {
 
 void mt_set_key(MTrie *mt, KeyOffset data) {
   // Try to find key in the trie
-  Match match = mt_find(mt, data.key);
+  Match match = mt_find(mt, data.suffix);
 
   // We found it, so update the value
   if (match.mt) {
@@ -43,29 +43,44 @@ void mt_set_key(MTrie *mt, KeyOffset data) {
   }
 
   // We didn't find it. We'll need to insert it below it's parent.
-  match = mt_find_parent(mt, data.key);
+  match = mt_find_parent(mt, data.suffix);
   mt_insert(match, data);
 }
 
-bool mt_contains_key(MTrie *mt, const char *key) {
+bool mt_contains_key(MTrie *mt, const wchar_t *key) {
   Match match = mt_find(mt, key);
 
   return (match.mt != NULL);
 }
 
-
-int mt_count_prefix(MTrie *mt, const char *prefix) {
+int mt_count_prefix(MTrie *mt, const wchar_t *prefix) {
+  
 }
 
-MTrieIter* mt_iter_start(MTrie *mt, const char *prefix) {
-
+MTrieIter* mt_iter_start(MTrie *mt, const wchar_t *prefix) {
+  
 }
 
 KeyOffset* mt_iter_next(MTrieIter *iter) {
-
+  
 }
 
 void mt_iter_free(MTrieIter *iter) {
-
+  
 }
 
+// Internal helpers
+
+// Find an exact match for this node, returns NULL if not found.
+Match mt_find(MTrie *mt, const wchar_t *key) {
+  
+}
+
+// Find the closest parent for this node, always returns a valid MTrie*.
+Match mt_find_parent(MTrie *mt, const wchar_t *key) {
+}
+
+// Insert a node, assuming it was found using one of the previous functions
+void mt_insert(Match prefix, KeyOffset data) {
+  
+}
