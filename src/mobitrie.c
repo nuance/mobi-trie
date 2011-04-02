@@ -10,7 +10,7 @@ MTrie *mt_new() {
 	return NULL;
   }
 
-  mt->data = NULL;
+  mt->data.offset = NULL;
   mt->num_children = 0;
   mt->children = NULL;
 
@@ -86,9 +86,46 @@ Match mt_find(MTrie *mt, const wchar_t *key) {
 
 // Find the closest parent for this node, always returns a valid MTrie*.
 Match mt_find_parent(MTrie *mt, const wchar_t *key) {
+  int key_len = wcslen(key);
+  MTrie *node = mt;
+
+  for (int key_position = 0; key_position < key_len; key_position++) {
+	MTrie *next_node = NULL;
+
+	// Walk through the children, looking for a match
+	for (int child_pos = 0; child_pos < node->num_children; child_pos++) {
+	  MTrie *child = node->children[child_pos];
+
+	  // If the child matches our position, continue
+	  if (child->data.key == key[key_position]) {
+		next_node = child;
+		break;
+	  }
+	}
+
+	// If none of the children matched, this is our parent.
+	if (!next_node) {
+	  wchar_t *prefix = (wchar_t*)malloc(sizeof(wchar_t) * key_position);
+	  wcsncpy(prefix, key, key_position);
+
+	  return (Match) {prefix, node};
+	}
+
+	// otherwise, continue walking down.
+	node = next_node;
+  }
 }
 
 // Insert a node, assuming it was found using one of the previous functions
 void mt_insert(Match prefix, KeyOffset data) {
   
 }
+
+bool wc_has_prefix(const wchar_t *val, const wchar_t *prefix) {
+
+}
+
+wchar_t* wc_remove_prefix(const wchar_t *val, const wchar_t *prefix) {
+
+}
+

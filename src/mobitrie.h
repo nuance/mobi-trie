@@ -8,13 +8,13 @@
 typedef uint64_t offset;
 
 typedef struct {
-  const wchar_t *suffix;
-
-  offset off;
+  wchar_t key;
+  offset *off;
 } KeyOffset;
 
 typedef struct _MTrie {
-  KeyOffset *data;
+  KeyOffset data;
+
   int num_children;
   struct _MTrie **children;
 } MTrie;
