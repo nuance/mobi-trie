@@ -10,7 +10,10 @@ typedef struct { } MTrie;
 typedef struct { } MTrieIter;
 typedef struct { } KeyOffset;
 
+// Create a new trie. Returns NULL on failure
 MTrie *mt_new();
+
+// Dealloc a trie.
 void mt_free(MTrie *mt);
 
 void mt_set_key(MTrie *mt, char *key, offset val);
