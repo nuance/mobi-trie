@@ -54,12 +54,54 @@ char * test_put() {
 }
 
 char * test_prefix() {
+	mt_set_key(trie, L"Bob", VALUE - 100);
 	mt_set_key(trie, L"John", VALUE);
-	mt_set_key(trie, L"Joanna", VALUE);
+	mt_set_key(trie, L"Joanna", VALUE * 2);
 	mu_assert(
 	  "After put, prefix count is 2",
 		mt_count_prefix(trie, L"Jo") == 2
 	);
+	
+	MTrieIter *iter = mt_iter_start(trie, L"Jo");
+	MTrieMatch *match;
+
+	match = mt_iter_next(iter);
+	mu_assert(
+	  "Iterator should not be null",
+		match != NULL
+	);
+	mu_assert(
+	  "First key should be Joanna",
+		wcscmp(match->prefix, L"Joanna")
+	);
+	mu_assert(
+		"First value should be VALUE*2",
+		match->mt->data->off == VALUE * 2
+	);
+	
+	match = mt_iter_next(iter);
+	mu_assert(
+	  "Iterator should not be null",
+		match != NULL
+	);
+	mu_assert(
+	  "Second key should be John",
+		wcscmp(match->prefix, L"John")
+	);
+	mu_assert(
+		"Second value should be VALUE",
+		match->mt->data->off == VALUE
+	);
+	
+	match = mt_iter_next(iter);
+	mu_assert(
+	  "Iterator should be finished",
+		match != NULL
+	);
+	
+	mt_iter_free(iter);
+	
+	return 0;
 }
 
 char * all_tests() {
