@@ -64,8 +64,12 @@ void mt_resize_children(MTrie *mt) {
 
 // Insert a node somewhere under an existing node
 void mt_insert(MTrieMatch prefix, const wchar_t *key, offset data) {
-  int prefix_len = wcslen(prefix.prefix);
+  int prefix_len = 0;
   int key_len = wcslen(key);
+
+  if (prefix.prefix) {
+	wcslen(prefix.prefix);
+  }
 
   MTrie *current_parent = prefix.mt;
   // Now we'll have to create any nodes between parent and our end
@@ -123,10 +127,14 @@ void mt_iter_free(MTrieIter *iter) {
 MTrie *mt_find(MTrie *mt, const wchar_t *key) {
   // find the parent
   MTrieMatch p = mt_find_parent(mt, key);
+  MTrie *node = NULL;
+
+  if (!p.prefix) {
+	goto CLEANUP;
+  }
+
   int prefix_len = wcslen(p.prefix);
   int key_len = wcslen(key);
-
-  MTrie *node = NULL;
 
   // If the parent isn't one shorter, it definitely won't contain it
   if (prefix_len + 1 != key_len) {
@@ -171,10 +179,13 @@ MTrieMatch mt_find_parent(MTrie *mt, const wchar_t *key) {
 
 	// If none of the children matched, this is our parent.
 	if (!next_node) {
-	  wchar_t *prefix = (wchar_t*)malloc(sizeof(wchar_t) * key_position);
-	  wcsncpy(prefix, key, key_position);
-
-	  return (MTrieMatch) {prefix, node};
+	  if (key_position) {
+		wchar_t *prefix = (wchar_t*)malloc(sizeof(wchar_t) * key_position);
+		wcsncpy(prefix, key, key_position);
+		return (MTrieMatch) {prefix, node};
+	  } else {
+		return (MTrieMatch) {NULL, node};
+	  }
 	}
 
 	// otherwise, continue walking down.
