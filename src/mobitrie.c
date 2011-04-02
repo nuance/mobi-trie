@@ -32,7 +32,15 @@ void mt_free(MTrie *mt) {
   free(mt);
 }
 
-void mt_set_key(MTrie *mt, KeyOffset data) {
+void mt_set_key(MTrie *mt, const wchar_t *key, offset data) {
+	KeyOffset keyOffset;
+	keyOffset.suffix = key; // TODO(robbyw): Should we make a copy?
+	keyOffset.off = data;
+	
+	mt_set_key_offset(mt, keyOffset);
+}
+
+void mt_set_key_offset(MTrie *mt, KeyOffset data) {
   // Try to find key in the trie
   Match match = mt_find(mt, data.suffix);
 

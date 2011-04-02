@@ -5,6 +5,7 @@ all: mt
 
 test: mobitrie.o mobitrie_test.o
 	$(CC) -o test mobitrie.o mobitrie_test.o
+	./test
 
 clean:
 	rm -f test mt mobitrie.o mobitrie_test.o

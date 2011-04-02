@@ -8,7 +8,7 @@
 typedef uint64_t offset;
 
 typedef struct {
-  wchar_t *suffix;
+  const wchar_t *suffix;
 
   offset off;
 } KeyOffset;
@@ -29,7 +29,8 @@ MTrie *mt_new();
 // Dealloc a trie.
 void mt_free(MTrie *mt);
 
-void mt_set_key(MTrie *mt, KeyOffset data);
+void mt_set_key(MTrie *mt, const wchar_t *key, offset data);
+void mt_set_key_offset(MTrie *mt, KeyOffset data);
 
 bool mt_contains_key(MTrie *mt, const wchar_t *key);
 int mt_count_prefix(MTrie *mt, const wchar_t *key);
